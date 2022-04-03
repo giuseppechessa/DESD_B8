@@ -1,43 +1,51 @@
-----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
--- 
--- Create Date: 01.04.2022 14:43:04
--- Design Name: 
--- Module Name: PWM - Behavioral
--- Project Name: 
--- Target Devices: 
--- Tool Versions: 
--- Description: 
--- 
--- Dependencies: 
--- 
--- Revision:
--- Revision 0.01 - File Created
--- Additional Comments:
--- 
-----------------------------------------------------------------------------------
-
-
 library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
-
--- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
-
--- Uncomment the following library declaration if instantiating
--- any Xilinx leaf cells in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
+  use IEEE.STD_LOGIC_1164.ALL;
+  use IEEE.NUMERIC_STD.ALL;
 
 entity PWM is
---  Port ( );
+  GENERIC(
+    BIT_LENGTH : INTEGER RANGE 1 TO 16 := 8;
+
+    T_ON_INIT  : POSITIVE :=64;
+    PERIOD_INIT : POSITIVE := 128;
+
+    PWM_INIT    : std_logic:='0'
+  );
+  Port (
+    reset : in  std_logic;
+    clk   : in  std_logic;
+
+    Ton   : in  std_logic_vector(BIT_LENGTH-1 DOWNTO 0):=std_logic_vector(to_unsigned(T_ON_INIT,BIT_LENGTH));
+    Period: in  std_logic_vector(BIT_LENGTH-1 DOWNTO 0):=std_logic_vector(to_unsigned(PERIOD_INIT,BIT_LENGTH));
+
+    PWM   : out std_logic:=PWM_INIT
+   );
 end PWM;
 
 architecture Behavioral of PWM is
-
+  signal Time_elapsed : unsigned(BIT_LENGTH-1 DOWNTO 0);
+  signal Ton_new     : unsigned(BIT_LENGTH-1 DOWNTO 0);
 begin
+
+  process (clk,reset)
+  begin
+    if reset ='1' then
+      PWM<='0';
+      Ton_new<=(Others=>'0');
+      Time_elapsed<=(Others=>'0');
+    elsif  rising_edge(clk) then
+      Time_elapsed<=Time_elapsed+1;
+      if(Time_elapsed>= unsigned(Period)) then
+        Time_elapsed<=(Others=>'0');
+        Ton_new<=unsigned(Ton);
+      end if;
+      if(Time_elapsed<Ton_new) then
+        PWM<='1';
+      elsif(Time_elapsed>=Ton_new) then
+        PWM<='0';
+      end if;
+    end if;
+  end process;
 
 
 end Behavioral;

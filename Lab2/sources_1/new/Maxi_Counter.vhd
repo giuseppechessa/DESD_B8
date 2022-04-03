@@ -20,7 +20,7 @@ end Maxi_Counter;
 architecture Behavioral of Maxi_Counter is
     constant Zero_Value     :unsigned(NUM_OF_SWS-1 DOWNTO 0) := (Others=>'0');
 
-	signal PrimaryCounter	:	unsigned(integer(ceil(log2(real(Number_Of_Pulses))))-1 DOWNTO 0):= (Others=>'0');
+	signal PrimaryCounter	:	unsigned(integer(floor(log2(real(Number_Of_Pulses)))) DOWNTO 0):= (Others=>'0');
 	signal SecondaryCounter	:	unsigned(NUM_OF_SWS-1 DOWNTO 0) := (Others=>'0');
 	signal Switches_value	:	unsigned(NUM_OF_SWS-1 DOWNTO 0) := (Others=>'0');
 	signal enable_proxy    	:	std_logic := '0';

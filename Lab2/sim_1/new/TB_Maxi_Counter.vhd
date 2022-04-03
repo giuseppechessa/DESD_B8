@@ -14,11 +14,11 @@ architecture Behavioral of TB_Maxi_Counter is
 			NUM_OF_SWS			:	INTEGER		RANGE	1 TO 16 := 16	-- Number of input switches
 	  );
 	  Port (
-			clk		:	in	std_logic;
-			reset	:	in	std_logic;
+			clk					:	in	std_logic;
+			reset				:	in	std_logic;
 			
-			Switches	:	in	std_logic_vector(NUM_OF_SWS-1 DOWNTO 0);
-			enable	:	out	std_logic
+			Switches			:	in	std_logic_vector(NUM_OF_SWS-1 DOWNTO 0);
+			enable				:	out	std_logic
 	  );
 	end component;
 	
