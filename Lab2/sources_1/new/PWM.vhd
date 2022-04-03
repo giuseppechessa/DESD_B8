@@ -40,9 +40,9 @@ begin
         Ton_new<=unsigned(Ton);
       end if;
       if(Time_elapsed<Ton_new) then
-        PWM<='1';
+        PWM<=PWM_INIT;
       elsif(Time_elapsed>=Ton_new) then
-        PWM<='0';
+        PWM<=not PWM_INIT;
       end if;
     end if;
   end process;
