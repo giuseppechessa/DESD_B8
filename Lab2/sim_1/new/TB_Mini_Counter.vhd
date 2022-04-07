@@ -18,13 +18,13 @@ architecture Behavioral of TB_Mini_Counter is
 			
 			din		:	in	std_logic;
 			enable	:	in	std_logic;
-			dout	:	out	std_logic_vector(integer(ceil(log2(real(TAIL_LENGTH)))) DOWNTO 0)
+			dout	:	out	std_logic_vector(integer(floor(log2(real(TAIL_LENGTH)))) DOWNTO 0)
 		);
 	end component;
 	
 	constant TAIL_LENGTH	:	Integer := 4;
 	constant CLKPeriod		:	Time:= 10 ns;
-	constant TAIL_BIT		:	Integer:=integer(ceil(log2(real(TAIL_LENGTH))));
+	constant TAIL_BIT		:	Integer:=integer(floor(log2(real(TAIL_LENGTH))));
 	
 	signal clk				:	std_logic:='1';
 	signal reset			:	std_logic:='0';

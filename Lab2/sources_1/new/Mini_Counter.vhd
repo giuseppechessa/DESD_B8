@@ -18,20 +18,27 @@ entity Mini_Counter is
 end Mini_Counter;
 
 architecture Behavioral of Mini_Counter is
-	signal	Counter	: unsigned(integer(floor(log2(real(TAIL_LENGTH)))) DOWNTO 0):=(Others=>'0');
+	
+	signal	Counter	: unsigned(integer(floor(log2(real(TAIL_LENGTH)))) DOWNTO 0) := (Others=>'0');
+
 begin
 	dout<=std_logic_vector(Counter);
+	
 	process (clk,reset)
 	begin
+	
 		if reset='1' then
 			Counter<=(Others=>'0');
+			
 		elsif rising_edge(clk) then
 			if enable='1' then
+			
 				if din='1' then
 					Counter<=to_unsigned(TAIL_LENGTH,Counter'LENGTH);
 				elsif din='0' and Counter>0 then
 					Counter<=Counter-1;
 				end if;
+				
 			end if;
 		end if;
 	end process;

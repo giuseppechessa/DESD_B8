@@ -39,7 +39,7 @@ begin
 			    -- With a tail made by N LEDs we'll instantiate N SR, the one with the most intense PWM as input is initially placed on the MSB
 				SR_Internal <= (0 => '1', Others => '0');
 
-				direction <= GOING_RIGHT;
+				direction <= GOING_LEFT;
 
 			elsif rising_edge(clk) then
 				-- We'll apply a shift only whenever Counter enables it, in our case only when dtx has passed

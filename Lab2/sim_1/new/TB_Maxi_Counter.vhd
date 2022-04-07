@@ -7,10 +7,11 @@ entity TB_Maxi_Counter is
 end TB_Maxi_Counter;
 
 architecture Behavioral of TB_Maxi_Counter is
-
+	
+	---- DUT ----
 	component Maxi_Counter is
 	  Generic(
-			Number_Of_Pulses	:	POSITIVE	:= 1e6;
+			NUM_OF_PULSES		:	POSITIVE	:= 1e5;					-- Number of clock cycles between two register shifts at base speed
 			NUM_OF_SWS			:	INTEGER		RANGE	1 TO 16 := 16	-- Number of input switches
 	  );
 	  Port (
@@ -22,39 +23,80 @@ architecture Behavioral of TB_Maxi_Counter is
 	  );
 	end component;
 	
-	Constant CLK_PERIOD			: Time	   := 10 ns;
-	constant Number_Of_Pulses	: POSITIVE := 2e8;
-	constant NUM_OF_SWS			: POSITIVE := 16;
+	
+	---- CONSTANT DECLARATION ----
+	-- Timing
+	constant CLK_PERIOD		: Time	:= 10 ns;
+	constant RESET_WND		: Time	:= 10*CLK_PERIOD;
+	
+	-- DUT Generics
+	constant DUT_NUM_OF_PULSES	: POSITIVE := 1e5;
+	constant DUT_NUM_OF_SWS		: POSITIVE := 16;
+	
+	
+	
+	--- SIGNALS DECLARATION ---
 	
 	signal clk			:	std_logic:= '1';
 	signal reset		:	std_logic:= '0';
-	signal Switches		:	std_logic_vector(NUM_OF_SWS-1 DOWNTO 0);
-	signal enable		:	std_logic := '0';
 	
-	signal Switches_int	:	integer;
+	signal dut_Switches	:	std_logic_vector(NUM_OF_SWS-1 DOWNTO 0);
+	signal dut_enable	:	std_logic := '0';
+	
+	signal Switches_int	:	integer;			-- switches integer value 
 	
 begin
 
+	--- DUT ---
 	Inst_Maxi_Counter	: Maxi_Counter
-	generic map(
-		Number_Of_Pulses=>Number_Of_Pulses,
-		NUM_OF_SWS=>NUM_OF_SWS
-	)
-	port map(
-		clk=>clk,
-		reset=>reset,
-		
-		Switches=>Switches,
-		enable=>enable
-	);
+		generic map(
+			NUM_OF_PULSES => DUT_NUM_OF_PULSES,
+			NUM_OF_SWS	  => DUT_NUM_OF_SWS
+		)
+		port map(
+			clk		=>clk,
+			reset	=>reset,
+			
+			Switches=>dut_Switches,
+			enable	=>dut_enable
+		);
 	
-	clk<=not clk after CLK_PERIOD/2;
-	Switches<=std_logic_vector(to_unsigned(Switches_int,Switches'LENGTH));
-	process
+	
+	--- TEST BENCH DATA FLOW  ---
+	-- clock
+	clk	<=	not clk after CLK_PERIOD/2;
+	
+	-- Reset Process 
+	reset_wave :process
 	begin
-	Switches_int<=1;
+		reset <= '1';
+		wait for RESET_WND;
+		
+		reset <= '0';
+		wait;
+    end process
 	
+	-- Stimulus process
+	Switches <=	std_logic_vector(to_unsigned(Switches_int,Switches'LENGTH));
+	 
+	stim_proc: process
+	begin
 	
-	wait;
+		-- waiting the reset wave
+		
+		Switches_int <= 0 ;
+		wait for RESET_WND;
+		
+		-- start 
+		for I in 0 to 2**DUT_NUM_OF_SWS+1 loop
+		
+			Switches_int <= I ;
+			
+			wait for  (I+1)*1e6 ns;
+		end loop ;
+		
+	
+		-- stop
+		wait;
 	end process;
 end Behavioral;

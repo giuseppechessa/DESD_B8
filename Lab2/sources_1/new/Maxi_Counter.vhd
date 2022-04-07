@@ -5,7 +5,7 @@ library IEEE;
 	
 entity Maxi_Counter is
   Generic(
-		NUM_OF_PULSES	    :	POSITIVE	:= 1e6;	-- Number of clock cycles between two register shifts at base speed
+		NUM_OF_PULSES	    :	POSITIVE	:= 1e5;					-- Number of clock cycles between two register shifts at base speed
 		NUM_OF_SWS			:	INTEGER		RANGE	1 TO 16 := 16	-- Number of input switches
   );
   Port (
@@ -22,7 +22,7 @@ architecture Behavioral of Maxi_Counter is
     constant Zero_Value         :   unsigned(NUM_OF_SWS-1 DOWNTO 0) := (Others => '0');
 
 	-- Base Counter used to count the number of clock cycles between register shifts at base speed
-	signal Primary_Counter	:	unsigned(integer(floor(log2(real(NUM_OF_PULSES)))) DOWNTO 0):= (Others => '0');
+	signal Primary_Counter		:	unsigned(integer(floor(log2(real(NUM_OF_PULSES)))) DOWNTO 0):= (Others => '0');
 	-- When any switch is on, this additional Counter counts the number of times PrimaryCounter has counted to NUM_OF_PULSES
 	signal Secondary_Counter	:	unsigned(NUM_OF_SWS-1 DOWNTO 0) := (Others => '0');
 
@@ -66,7 +66,7 @@ begin
 				
 			end if;
 			
-			-- We check to see if the switches have been changed only at the end of each complete loop,  i.e. ehen enable has been activated, and at the beginning
+			-- We check to see if the switches have been changed only at the end of each complete loop,  i.e. when enable has been activated, and at the beginning
 			if Secondary_Counter = Zero_Value then
 				Switches_Value <= unsigned(switches);
 			end if;
