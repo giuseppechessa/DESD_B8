@@ -64,7 +64,7 @@ architecture Behavioral of Kitt_Top is
 			reset	: 	in 	std_logic;
 			din		:	in	std_logic;
 			enable	:	in	std_logic;
-			dout	:	out	std_logic_vector(integer(floor(log2(real(TAIL_LENGTH)))) DOWNTO 0)
+			dout	:	out	std_logic_vector(integer(log2(real(TAIL_LENGTH))) DOWNTO 0)
 		);
 	end component;
 	
@@ -87,7 +87,7 @@ architecture Behavioral of Kitt_Top is
 	
     -- CONSTANT DECLARATION --
 	-- Number of bits needed to represent TAIL_LENGTH
-    constant Tail_BITS	        :   Integer								:= integer(floor(log2(real(TAIL_LENGTH)))); 
+    constant Tail_BITS	        :   Integer								:= integer(log2(real(TAIL_LENGTH))); 
 	
 	-- Period of PWM with value TAIL_LENGTH 
 	constant Period				:	Integer								:= TAIL_LENGTH;

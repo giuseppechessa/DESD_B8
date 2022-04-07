@@ -19,22 +19,23 @@ end Mini_Counter;
 
 architecture Behavioral of Mini_Counter is
 	signal	Counter	: unsigned(integer(log2(real(TAIL_LENGTH))) DOWNTO 0):=(Others=>'0'); --Internal Counter
+	signal  Sub		: std_logic;
 begin
 	dout<=std_logic_vector(Counter);
 	
 	process (clk,reset)
 	begin
-	
 		if reset='1' then
 			Counter<=(Others=>'0');  --asincronous reset
 		elsif rising_edge(clk) then
-			if enable='1' then --only in case of enable that is high, so we can simulate a slower clk
-				if din='1' then
-					Counter<=to_unsigned(TAIL_LENGTH,Counter'LENGTH); --it goes up to TAIL_LENGTH when it has an input
-				elsif din='0' and Counter>0 then
-					Counter<=Counter-1;  -- it decreses until 0 when no input is applied
-				end if;
-				
+			if din='1' then
+				Counter<=to_unsigned(TAIL_LENGTH,Counter'LENGTH); --it goes up to TAIL_LENGTH when it has an input
+			elsif din='0' and Counter>0 and Sub='0' then
+				Counter<=Counter-1;  -- it decreses until 0 when no input is applied
+				Sub<='1';
+			end if;
+			if enable='1' then  --only in case of enable that is high, so we can simulate a slower clk
+                Sub <='0';
 			end if;
 		end if;
 	end process;
