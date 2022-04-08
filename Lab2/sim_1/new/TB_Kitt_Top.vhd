@@ -69,6 +69,7 @@ begin
 	
 	sw <= std_logic_vector(to_unsigned(SW_Int, sw'LENGTH));
 	
+	--Run the simulation for at least 100ms to see the LEDs moving at base speed and at 5 times lower speed
 	process
 	begin
 	
@@ -77,14 +78,14 @@ begin
 	wait for 100ns;
 	
 	reset <= '0';
-	wait for 10ms;
+	wait for 40ms;
 	
 	reset <= '1';      --Then we decrease the speed between each shift of the LEDs, resetting again to be sure that the counters start up properly
 	SW_Int <= 4;
 	wait for 100ns;
 		
 	reset <= '0';
-	wait for 20ms;
+	wait for 50ms;
 	
 	reset <= '1';      --Once again we slow down the Kitt's speed, this time every shift takes (14+1)*1ms = 15ms
 	SW_Int <= 14;
