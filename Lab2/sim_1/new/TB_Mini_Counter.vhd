@@ -8,9 +8,11 @@ entity TB_Mini_Counter is
 end TB_Mini_Counter;
 
 architecture Behavioral of TB_Mini_Counter is
+	
+	---- DUT ----
 	component Mini_Counter is
 		Generic(
-			TAIL_LENGTH				:	INTEGER	RANGE	1 TO 16	:= 4	-- Tail length
+			TAIL_LENGTH		:	INTEGER	RANGE	1 TO 16	:= 4	-- Tail length
 		);
 		Port ( 
 			clk		: 	in 	std_logic;
@@ -23,50 +25,69 @@ architecture Behavioral of TB_Mini_Counter is
 	end component;
 	
 	
+	---- CONSTANT DECLARATION ----
+	-- Timing
+	constant CLKPeriod		 :	Time:= 10 ns;
 	
-	constant TAIL_LENGTH	:	Integer := 5;
-	constant CLKPeriod		:	Time:= 10 ns;
-	constant TAIL_BIT		:	Integer:=integer(log2(real(TAIL_LENGTH)));
+	-- DUT Generics
+	constant DUT_TAIL_LENGTH :	Integer := 4;
 	
+	constant TAIL_BIT		 :	Integer := integer(log2(real(DUT_TAIL_LENGTH)));
+	
+	--- SIGNALS DECLARATION ---
 	signal clk				:	std_logic:='1';
 	signal reset			:	std_logic:='0';
-	signal din				:	std_logic:='1';
-	signal enable			:	std_logic:='1';
-	signal dout				:	std_logic_vector(TAIL_BIT DOWNTO 0);
+	signal dut_din			:	std_logic:='1';
+	signal dut_enable		:	std_logic:='1';
+	signal dut_dout			:	std_logic_vector(TAIL_BIT DOWNTO 0);
 	
 begin
-		Mini_Counter_INST	:	Mini_Counter
+	--- DUT ---
+	Mini_Counter_INST	:	Mini_Counter
 		generic map(
-			TAIL_LENGTH=>TAIL_LENGTH
+			TAIL_LENGTH => DUT_TAIL_LENGTH
 		)
 		port map(
-			clk=>clk,
-			reset=>reset,
-			din=>din,
-			enable=>enable,
-			dout=>dout
+			clk		=> clk,
+			reset	=> reset,
+			din		=> dut_din,
+			enable	=> dut_enable,
+			dout	=> dut_dout
 		);
 	
-	clk<=not clk after CLKPeriod/2;
+	-- clock
+	clk <= not clk after CLKPeriod/2;
+	
+	-- Stimulus process
 	process
 	begin
-		enable<='1';
-		din<='1';
+		--start
+		dut_enable	<= '1';
+		dut_din		<= '1';
+		
 		for I in 0 to 5 loop
 			wait until rising_edge(clk);
 		end loop;
-			din<='0';
+		
+		dut_din <= '0';
+			
 		for I in 0 to 5 loop
 			wait until rising_edge(clk);
 		end loop;	
 		
-		din<='1';
+		dut_din <= '1';
+		
 		wait until rising_edge(clk);
-			din<='0';
+		
+		dut_din <= '0';
+		
 		for I in 0 to 3 loop
 			wait until rising_edge(clk);
 		end loop;
-		enable<='0';
+		
+		dut_enable <= '0';
+		
+		--stop
 		wait;
 
 	end process;

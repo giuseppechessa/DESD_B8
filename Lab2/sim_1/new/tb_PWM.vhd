@@ -129,7 +129,7 @@ begin
 		
 			for J in 0 to 2**DUT_BIT_LENGTH-1 loop 
 			
-				dut_Ton		<= std_logic_vector(to_unsigned(J,DUT_BIT_LENGTH));
+				dut_Ton	<= std_logic_vector(to_unsigned(J,DUT_BIT_LENGTH));
 		
 			
 				wait for PWM_WND;
