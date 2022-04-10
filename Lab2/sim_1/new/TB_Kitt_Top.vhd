@@ -45,7 +45,7 @@ architecture Behavioral of TB_Kitt_Top is
 	
 	signal dut_sw		: std_logic_vector(NUM_OF_SWS-1 downto 0);
 	signal dut_leds		: std_logic_vector(NUM_OF_LEDS-1 downto 0);
-	
+
 	-- We'll modify this signal in the Testbench's process to modify the speed of the Kitt Car Effect
 	signal SW_Int	: INTEGER;
 	
@@ -72,6 +72,7 @@ begin
 	dut_sw <= std_logic_vector(to_unsigned(SW_Int, dut_sw'LENGTH));
 	
 	-- Stimulus process
+	--Run the simulation for at least 100ms to see the LEDs moving at base speed and at 5 times lower speed
 	stim_proc: process
 	begin
 		
@@ -81,7 +82,7 @@ begin
 		wait for 100ns;
 		
 		reset <= '0';
-		wait for 10ms;
+		wait for 40ms;
 		
 		reset <= '1';      --Then we decrease the speed between each shift of the LEDs, resetting again to be sure that the counters start up properly
 		SW_Int <= 4;
@@ -98,7 +99,6 @@ begin
 		
 		-- stop
 		wait;
-	
 	end process;
 
 end Behavioral;

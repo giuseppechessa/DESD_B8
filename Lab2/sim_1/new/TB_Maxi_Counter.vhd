@@ -11,7 +11,7 @@ architecture Behavioral of TB_Maxi_Counter is
 	---- DUT ----
 	component Maxi_Counter is
 	  Generic(
-			NUM_OF_PULSES		:	POSITIVE	:= 1e5;					-- Number of clock cycles between two register shifts at base speed
+			NUM_OF_PULSES		:	POSITIVE	:= 1e6;					-- Number of clock cycles between two register shifts at base speed
 			NUM_OF_SWS			:	INTEGER		RANGE	1 TO 16 := 16	-- Number of input switches
 	  );
 	  Port (
@@ -74,10 +74,11 @@ begin
 		
 		reset <= '0';
 		wait;
-    end process
+    end process;
 	
 	-- Stimulus process
-	Switches <=	std_logic_vector(to_unsigned(dut_Switches_int,dut_Switches'LENGTH));
+
+	dut_Switches <=	std_logic_vector(to_unsigned(Switches_int,dut_Switches'LENGTH));
 	 
 	stim_proc: process
 	begin
