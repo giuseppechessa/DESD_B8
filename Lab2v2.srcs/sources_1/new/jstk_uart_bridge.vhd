@@ -23,8 +23,6 @@ entity jstk_uart_bridge is
 		
         jstk_x			: in std_logic_vector(9 downto 0);
         jstk_y			: in std_logic_vector(9 downto 0);
---		jstk_x			: in std_logic_vector(11 downto 0);
---		jstk_y			: in std_logic_vector(11 downto 0);
 		btn_jstk		: in std_logic;
 		btn_trigger		: in std_logic;
 
@@ -47,9 +45,7 @@ architecture Behavioral of jstk_uart_bridge is
             aresetn			: in  STD_LOGIC;
 
             jstk_x			: in std_logic_vector(9 downto 0);
-            jstk_y			: in std_logic_vector(9 downto 0);    
---            jstk_x			: in std_logic_vector(11 downto 0);
---            jstk_y			: in std_logic_vector(11 downto 0);
+            jstk_y			: in std_logic_vector(9 downto 0);
             btn_jstk		: in std_logic;
             btn_trigger		: in std_logic;
 

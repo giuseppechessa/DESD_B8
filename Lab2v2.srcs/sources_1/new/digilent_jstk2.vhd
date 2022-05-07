@@ -24,8 +24,6 @@ entity digilent_jstk2 is
 		-- Joystick and button values read from the module
 		jstk_x			: out std_logic_vector(9 downto 0);
 		jstk_y			: out std_logic_vector(9 downto 0);
---		jstk_x			: out std_logic_vector(11 downto 0);
---		jstk_y			: out std_logic_vector(11 downto 0);
 		btn_jstk		: out std_logic;
 		btn_trigger		: out std_logic;
 
@@ -73,8 +71,6 @@ architecture Behavioral of digilent_jstk2 is
 
             jstk_x			: out std_logic_vector(9 downto 0);
             jstk_y			: out std_logic_vector(9 downto 0);
---            jstk_x			: out std_logic_vector(11 downto 0);
---            jstk_y			: out std_logic_vector(11 downto 0);
             btn_jstk		: out std_logic;
             btn_trigger		: out std_logic
         );

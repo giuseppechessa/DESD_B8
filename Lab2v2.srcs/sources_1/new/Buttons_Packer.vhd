@@ -13,8 +13,6 @@ entity Buttons_Packer is
 
 		jstk_x			: in std_logic_vector(9 downto 0);
 		jstk_y			: in std_logic_vector(9 downto 0);
---		jstk_x			: in std_logic_vector(11 downto 0);
---		jstk_y			: in std_logic_vector(11 downto 0);
 		btn_jstk		: in std_logic;
 		btn_trigger		: in std_logic;
 		
@@ -68,15 +66,19 @@ begin
                         
                     when SEND_HEADER =>
                         if m_axis_tready = '1' then
---                            m_axis_tdata <= jstk_x(11 DOWNTO 11-JSTK_BITS);
-                            m_axis_tdata <= jstk_x(9 DOWNTO 9-JSTK_BITS);
+                            m_axis_tdata(JSTK_BITS-1 DOWNTO 0) <= jstk_x(9 DOWNTO 9-JSTK_BITS+1);
+                            if JSTK_BITS < 8 then
+                                m_axis_tdata(m_axis_tdata'HIGH DOWNTO JSTK_BITS) <= (Others => '0');
+                            end if;
                             tx_state <= SEND_JSTK_X;
                         end if;
                         
                     when SEND_JSTK_X =>
                         if m_axis_tready = '1' then
---                            m_axis_tdata <= jstk_y(11 DOWNTO 11-JSTK_BITS);
-                            m_axis_tdata <= jstk_y(9 DOWNTO 9-JSTK_BITS);
+                            m_axis_tdata(JSTK_BITS-1 DOWNTO 0) <= jstk_y(9 DOWNTO 9-JSTK_BITS+1);
+                            if JSTK_BITS < 8 then
+                                m_axis_tdata(m_axis_tdata'HIGH DOWNTO JSTK_BITS) <= (Others => '0');
+                            end if;
                             tx_state <= SEND_JSTK_Y;
                         end if;
                     

@@ -14,8 +14,6 @@ entity Buttons_Unpacker is
 		-- Joystick and button values read from the module
 		jstk_x			: out std_logic_vector(9 downto 0);
 		jstk_y			: out std_logic_vector(9 downto 0);
---		jstk_x			: out std_logic_vector(11 downto 0);
---		jstk_y			: out std_logic_vector(11 downto 0);
 		btn_jstk		: out std_logic;
 		btn_trigger		: out std_logic
 	);
@@ -49,7 +47,6 @@ begin
                     when GET_X_MSB =>
                         if s_axis_tvalid = '1' then
                             jstk_x(9 DOWNTO 8) <= s_axis_tdata(1 DOWNTO 0);
---                            jstk_x(11 DOWNTO 8) <= s_axis_tdata(3 DOWNTO 0);
                             state_sts <= GET_Y_LSB;
                         end if;
                         
@@ -62,7 +59,6 @@ begin
                     when GET_Y_MSB =>
                         if s_axis_tvalid = '1' then
                             jstk_y(9 DOWNTO 8) <= s_axis_tdata(1 DOWNTO 0);
---                            jstk_y(11 DOWNTO 8) <= s_axis_tdata(3 DOWNTO 0);
                             state_sts <= GET_BUTTONS;
                         end if;
                         
