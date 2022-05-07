@@ -24,10 +24,10 @@ architecture Behavioral of Buttons_Unpacker is
 	type state_sts_type is (GET_X_LSB, GET_X_MSB, GET_Y_LSB, GET_Y_MSB, GET_BUTTONS);
 	signal state_sts			: state_sts_type := GET_X_LSB;
 	signal jstk_temp	:	std_logic_vector(7 downto 0);
-	alias	jstkx_LOW	is	jstk_x(7 downto 0);
-	alias	jstkx_HIGH	is	jstk_x(9 downto 8);
-	alias	jstky_LOW	is	jstk_y(7 downto 0);
-	alias	jstky_HIGH	is	jstk_y(9 downto 8);
+	alias	jstkx_LOW	:	std_logic_vector(7 downto 0)	is	jstk_x(7 downto 0);
+	alias	jstkx_HIGH	:	std_logic_vector(1 downto 0)	is	jstk_x(9 downto 8);
+	alias	jstky_LOW	:	std_logic_vector(7 downto 0)	is	jstk_y(7 downto 0);
+	alias	jstky_HIGH	:	std_logic_vector(1 downto 0)	is	jstk_y(9 downto 8);
 	
 
 begin
