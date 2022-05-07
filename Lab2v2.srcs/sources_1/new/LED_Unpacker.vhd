@@ -3,7 +3,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity LED_Unpacker is
 	generic (
-		HEADER_CODE		: std_logic_vector(7 downto 0) := "11000000" -- Header of the packet
+		HEADER_CODE		: std_logic_vector(7 downto 0) := x"C0"-- Header of the packet
 	);
 	Port ( 
 		aclk 			: in  STD_LOGIC;
@@ -25,11 +25,17 @@ architecture Behavioral of LED_Unpacker is
 	type rx_state_type is (IDLE, GET_HEADER, GET_LED_R, GET_LED_G, GET_LED_B);
 	signal rx_state			: rx_state_type := GET_HEADER;
 	
-	signal s_axis_tready_sig : std_logic := '0';
+	signal s_axis_tready_sig	:	std_logic := '0';
+	signal led_r_AUX			:	std_logic_vector(7 downto 0):=(Others=>'0');
+	signal led_g_AUX			:	std_logic_vector(7 downto 0):=(Others=>'0');
+	signal led_b_AUX			:	std_logic_vector(7 downto 0):=(Others=>'0');
 	
 begin
     
     s_axis_tready <= s_axis_tready_sig;
+	led_r<=led_r_AUX;
+	led_g<=led_g_AUX;
+	led_b<=led_b_AUX;
     
     with rx_state select s_axis_tready_sig <=
         '0' when IDLE,
@@ -46,9 +52,9 @@ begin
             
             if aresetn = '0' then
                 rx_state <= IDLE;
-                led_r <= (Others => '0');
-                led_g <= (Others => '0');
-                led_b <= (Others => '0');
+                led_r_AUX <= (Others => '0');
+                led_g_AUX <= (Others => '0');
+                led_b_AUX <= (Others => '0');
                 
             else
                 
@@ -64,19 +70,19 @@ begin
                     
                     when GET_LED_R =>
                         if s_axis_tvalid = '1' then
-                            led_r <= s_axis_tdata;
+                            led_r_AUX <= s_axis_tdata;
                             rx_state <= GET_LED_G;
                         end if;
                         
                     when GET_LED_G =>
                         if s_axis_tvalid = '1' then
-                            led_g <= s_axis_tdata;
+                            led_g_AUX <= s_axis_tdata;
                             rx_state <= GET_LED_B;
                         end if;
                     
                     when GET_LED_B =>
                         if s_axis_tvalid = '1' then
-                            led_b <= s_axis_tdata;
+                            led_b_AUX <= s_axis_tdata;
                             rx_state <= IDLE;
                         end if;
                         

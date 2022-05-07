@@ -23,6 +23,12 @@ architecture Behavioral of Buttons_Unpacker is
 
 	type state_sts_type is (GET_X_LSB, GET_X_MSB, GET_Y_LSB, GET_Y_MSB, GET_BUTTONS);
 	signal state_sts			: state_sts_type := GET_X_LSB;
+	signal jstk_temp	:	std_logic_vector(7 downto 0);
+	alias	jstkx_LOW	is	jstk_x(7 downto 0);
+	alias	jstkx_HIGH	is	jstk_x(9 downto 8);
+	alias	jstky_LOW	is	jstk_y(7 downto 0);
+	alias	jstky_HIGH	is	jstk_y(9 downto 8);
+	
 
 begin
     
@@ -40,25 +46,27 @@ begin
                 
                     when GET_X_LSB =>
                         if s_axis_tvalid = '1' then
-                            jstk_x(7 DOWNTO 0) <= s_axis_tdata;
+                            jstk_temp <= s_axis_tdata;
                             state_sts <= GET_X_MSB;
                         end if;
                         
                     when GET_X_MSB =>
                         if s_axis_tvalid = '1' then
-                            jstk_x(9 DOWNTO 8) <= s_axis_tdata(1 DOWNTO 0);
+							jstkx_LOW <= jstk_temp;
+                            jstkx_HIGH <= s_axis_tdata(1 DOWNTO 0);
                             state_sts <= GET_Y_LSB;
                         end if;
                         
                     when GET_Y_LSB =>
                         if s_axis_tvalid = '1' then
-                            jstk_y(7 DOWNTO 0) <= s_axis_tdata;
+                            jstk_temp <= s_axis_tdata;
                             state_sts <= GET_Y_MSB;
                         end if;
                     
                     when GET_Y_MSB =>
                         if s_axis_tvalid = '1' then
-                            jstk_y(9 DOWNTO 8) <= s_axis_tdata(1 DOWNTO 0);
+							jstky_LOW <= jstk_temp;
+                            jstky_HIGH <= s_axis_tdata(1 DOWNTO 0);
                             state_sts <= GET_BUTTONS;
                         end if;
                         
