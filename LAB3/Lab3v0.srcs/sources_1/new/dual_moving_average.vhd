@@ -1,15 +1,15 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
-entity volume_controller is
+entity dual_moving_average is
     Generic(
-        jstk_units : integer range 5 TO 10 := 6
+        n_samples : integer := 32
     );
     Port (
         aclk     : in std_logic;
         aresetn     : in std_logic;
         
-        volume : in std_logic_vector(9 DOWNTO 0);
+        filter_enable : in std_logic;
         
         s_axis_tdata    : in std_logic_vector(24-1 DOWNTO 0);
         s_axis_tvalid   : in std_logic;
@@ -21,9 +21,9 @@ entity volume_controller is
         m_axis_tlast    : out std_logic;
         m_axis_tready   : in std_logic
     );
-end volume_controller;
+end dual_moving_average;
 
-architecture Behavioral of volume_controller is
+architecture Behavioral of dual_moving_average is
 
     component data_receiver is
         Port (
@@ -40,37 +40,19 @@ architecture Behavioral of volume_controller is
         );
     end component;
     
-    component amp_generator is
-    Generic(
-        jstk_units : integer range 5 TO 10 := 6
-    );
-    Port (
-        aclk     : in std_logic;
-        aresetn     : in std_logic;
-        
-        volume : in std_logic_vector(9 DOWNTO 0);
-        
-        amp_power : out integer;
-        amp_sign : out std_logic
-    );
-    end component;
-    
-    component signal_amplification is
-    Port (
-        aclk     : in std_logic;
-        aresetn     : in std_logic;
-        
-        din_left : in std_logic_vector(24-1 DOWNTO 0);
-        din_right : in std_logic_vector(24-1 DOWNTO 0);
-        
-        amp_power : in integer;
-        amp_sign : in std_logic;
-        
-        balance_check : in std_logic;
-        
-        dout_left : out std_logic_vector(24-1 DOWNTO 0);
-        dout_right : out std_logic_vector(24-1 DOWNTO 0)
-    );
+    component mono_moving_average is
+        Generic(
+            n_samples : integer := 32
+        );
+        Port (
+            aclk     : in std_logic;
+            aresetn     : in std_logic;
+            
+            filter_enable : in std_logic;
+            
+            din : in std_logic_vector(23 DOWNTO 0);
+            dout : out std_logic_vector(23 DOWNTO 0)
+        );
     end component;
     
     component data_sender is
@@ -91,9 +73,6 @@ architecture Behavioral of volume_controller is
     signal s_left_data : std_logic_vector(24-1 DOWNTO 0);
     signal s_right_data : std_logic_vector(24-1 DOWNTO 0);
     
-    signal amp_power : integer;
-    signal amp_sign : std_logic;
-    
     signal m_left_data : std_logic_vector(24-1 DOWNTO 0);
     signal m_right_data : std_logic_vector(24-1 DOWNTO 0);
     
@@ -111,31 +90,30 @@ begin
         data_right => s_right_data
     );
     
-    AMP_GEN_INST : amp_generator
+    LEFT_AVERAGE : mono_moving_average
     Generic Map(
-        jstk_units => jstk_units
+        n_samples => n_samples
     )
     Port Map(
         aclk => aclk,
         aresetn => aresetn,
-        volume => volume,
-        amp_power => amp_power,
-        amp_sign => amp_sign
+        filter_enable => filter_enable,
+        din => s_left_data,
+        dout => m_left_data
     );
     
-    SIGNAL_AMP_INST : signal_amplification
+    RIGHT_AVERAGE : mono_moving_average
+    Generic Map(
+        n_samples => n_samples
+    )
     Port Map(
         aclk => aclk,
         aresetn => aresetn,
-        din_left => s_left_data,
-        din_right => s_right_data,
-        amp_power => amp_power,
-        amp_sign => amp_sign,
-        balance_check => '0',
-        dout_left => m_left_data,
-        dout_right => m_right_data
+        filter_enable => filter_enable,
+        din => s_right_data,
+        dout => m_right_data
     );
-    
+        
     M_AXIS_PORT_INST : data_sender
     Port Map(
         aclk => aclk,
@@ -147,5 +125,5 @@ begin
         data_left => m_left_data,
         data_right => m_right_data
     );
-
+    
 end Behavioral;

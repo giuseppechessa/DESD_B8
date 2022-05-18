@@ -1,15 +1,15 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
-entity volume_controller is
+entity balance_controller is
     Generic(
-        jstk_units : integer range 5 TO 10 := 6
+        jstk_units : integer range 5 to 10 := 6
     );
     Port (
         aclk     : in std_logic;
         aresetn     : in std_logic;
         
-        volume : in std_logic_vector(9 DOWNTO 0);
+        balance : std_logic_vector(9 DOWNTO 0);
         
         s_axis_tdata    : in std_logic_vector(24-1 DOWNTO 0);
         s_axis_tvalid   : in std_logic;
@@ -21,9 +21,9 @@ entity volume_controller is
         m_axis_tlast    : out std_logic;
         m_axis_tready   : in std_logic
     );
-end volume_controller;
+end balance_controller;
 
-architecture Behavioral of volume_controller is
+architecture Behavioral of balance_controller is
 
     component data_receiver is
         Port (
@@ -118,7 +118,7 @@ begin
     Port Map(
         aclk => aclk,
         aresetn => aresetn,
-        volume => volume,
+        volume => balance,
         amp_power => amp_power,
         amp_sign => amp_sign
     );
@@ -131,7 +131,7 @@ begin
         din_right => s_right_data,
         amp_power => amp_power,
         amp_sign => amp_sign,
-        balance_check => '0',
+        balance_check => '1',
         dout_left => m_left_data,
         dout_right => m_right_data
     );
@@ -147,5 +147,5 @@ begin
         data_left => m_left_data,
         data_right => m_right_data
     );
-
+    
 end Behavioral;
