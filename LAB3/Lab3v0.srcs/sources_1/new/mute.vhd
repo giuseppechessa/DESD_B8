@@ -3,6 +3,10 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity mute is
   Port (
+  
+		aclk : in std_logic ;
+        aresetn : in std_logic ;
+		
         mute_enable     : in std_logic;
         
         s_axis_tdata    : in std_logic_vector(24-1 DOWNTO 0);
@@ -23,22 +27,27 @@ architecture Behavioral of mute is
     
 begin
 
-    process(mute_enable, mute_check)
+    process(aclk,aresetn)
     begin
-        
-        m_axis_tvalid <= s_axis_tvalid;
-        m_axis_tlast <= s_axis_tlast;
-        s_axis_tready <= m_axis_tready;
-        
-        if mute_enable = '1' then
-            mute_check <= not mute_check;
-        end if;
-        
-        if mute_check = '0' then
-            m_axis_tdata <= s_axis_tdata;
-        elsif mute_check = '1' then
-            m_axis_tdata <= (Others => '0');
-        end if;
+        if aresetn = '0' then 
+            mute_check <= '0' ;
+            
+        elsif rising_edge(aclk) then 
+            m_axis_tvalid <= s_axis_tvalid;
+            m_axis_tlast <= s_axis_tlast;
+            s_axis_tready <= m_axis_tready;
+                    
+            if mute_enable = '1' then
+                mute_check <= not mute_check;
+            end if;
+                    
+            if mute_check = '0' then
+                m_axis_tdata <= s_axis_tdata;
+            elsif mute_check = '1' then
+                m_axis_tdata <= (Others => '0');
+            end if;
+        end if ;    
+    
         
     end process;
     
