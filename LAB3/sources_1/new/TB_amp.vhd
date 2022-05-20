@@ -9,7 +9,7 @@ end TB_amp;
 architecture Behavioral of TB_amp is
 	component amp_generator is
 		Generic(
-			jstk_units : integer range 5 TO 10 := 6
+			jstk_units : integer range 5 TO 10 := 5
 		);
 		Port (
 			aclk     : in std_logic;
@@ -17,7 +17,7 @@ architecture Behavioral of TB_amp is
 			
 			volume : in std_logic_vector(9 DOWNTO 0);
 			
-			amp_power : out integer;
+			amp_power : out std_logic_vector(9-jstk_units DOWNTO 0);
 			amp_sign : out std_logic
 		);
 	end component;
@@ -30,7 +30,7 @@ architecture Behavioral of TB_amp is
 	
 	signal volume 		:	std_logic_vector (9 downto 0);
 	
-	signal amp_power	:	integer;
+	signal amp_power	:	std_logic_vector(9-jstk_units DOWNTO 0);
 	signal amp_sign		:	std_logic;
 	
 	signal volume_int	:	Integer:=0;
@@ -54,23 +54,14 @@ begin
 	
 	process
 	begin
-	wait until rising_edge(clk);
-	volume_int<=512;
-	wait until rising_edge(clk);
-	volume_int<=25;
-	wait until rising_edge(clk);
-	volume_int<=750;
-	wait until rising_edge(clk);
-	volume_int<=60;
-	wait until rising_edge(clk);
-	volume_int<=1024;
-	wait until rising_edge(clk);
-	volume_int<=0;
-	wait until rising_edge(clk);
-	volume_int<=550;
-	wait until rising_edge(clk);
+	for I in 0 to 1024 loop
+	   volume_int <= I;
+	   wait until rising_edge(clk);
+	   wait until rising_edge(clk);
+	   wait until rising_edge(clk);
+	   wait until rising_edge(clk);
+	end loop;
 	wait;
 	end process;
-
 
 end Behavioral;
