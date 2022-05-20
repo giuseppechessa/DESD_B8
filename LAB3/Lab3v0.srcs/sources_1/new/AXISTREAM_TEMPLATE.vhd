@@ -1,10 +1,11 @@
 library IEEE;
 	use IEEE.STD_LOGIC_1164.ALL;
+	use IEEE.NUMERIC_STD.ALL;
 
 
 entity AXISTREAM_TEMPLATE is
 	Generic(
-		boh_cose_varie	: Integer;
+		boh_cose_varie	: Integer
 	);
   Port ( 
 	aclk			:	in	std_logic;
@@ -25,13 +26,13 @@ entity AXISTREAM_TEMPLATE is
 end AXISTREAM_TEMPLATE;
 
 architecture Behavioral of AXISTREAM_TEMPLATE is
-	constant Pipeline_legth : signed(4 downto 0) :=0x"4";
+	 constant Pipeline_legth  : signed(4 DOWNTO 0) := "0100";
 	
-	type	RxAxis_t	is enum(IDLE,Rx_READY,Elaboration_sx,Elaboration_dx);
+	type	RxAxis_t	is (IDLE,Rx_READY,Elaboration_sx,Elaboration_dx);
 	signal	RxAxis	:	RxAxis_t:=IDLE;
 	
-	type	TxAxis_t	is enum(IDLE,Tx);
-	signal	TxAxis	:	RxAxis_t:=IDLE;
+	type	TxAxis_t	is (IDLE,Tx);
+	signal	TxAxis	:	TxAxis_t:=IDLE;
 	
 	signal	s_axis_tready_AUX	:	std_logic;
 	signal	m_axis_tvalid_AUX	:	std_logic;
@@ -53,13 +54,13 @@ begin
 
 	RxProcess : process (aclk)
 	begin
-	if rising_edge(clk)
+	if rising_edge(aclk) then
 		if aresetn='0' then
 			RxAxis<=IDLE;
-		elsif 
-			case RxAxis is
+		else
+			case (RxAxis) is
 				when IDLE=>
-					signal Counter_Pipeline	:	signed(4 downto 0):= Pipeline_legth;
+					Counter_Pipeline<= Pipeline_legth;
 					Combinatorial_Finished<='0';
 					s_axis_tready_AUX<='1';
 					RxAxis<=Rx_READY;
@@ -68,7 +69,7 @@ begin
 						if s_axis_tlast='1' then
 							RxAxis<=Elaboration_dx;
 							Audio_sx_in<=signed(s_axis_tdata);
-						elsif 
+						else 
 							RxAxis<=Elaboration_sx;
 							Audio_dx_in<=signed(s_axis_tdata);
 						end if;
@@ -97,11 +98,11 @@ begin
 	
 	TxProcess : process (aclk)
 	begin
-	if rising_edge(clk)
+	if rising_edge(aclk) then
 		if aresetn='0' then
 			TxAxis<=IDLE;
-		elsif 
-			case TxAxis is
+		else
+			case (TxAxis) is
 				when IDLE=>
 					if Combinatorial_Finished='1' then 
 						if m_axis_tlast_AUX='1' then 
