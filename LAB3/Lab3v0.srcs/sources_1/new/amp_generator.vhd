@@ -5,20 +5,19 @@ use IEEE.MATH_REAL.ALL;
 
 entity amp_generator is
     Generic(
-        -- Since the number of intervals in the range 0 TO 1023 is given by 1024/(2**units)..
-        -- .. it might make more sense to keep the range of jstk_units such that by raising the volume to..
-        -- .. the highest possible value we don't automatically saturate the signal (with units = 4 we would have..
-        -- .. 64 total intervals which equate to a maximum amplification of 2**32 which would saturate even the..
-        -- .. lowest possible signal.
-        jstk_units : integer range 5 TO 10 := 6
+        -- We use this interval because any value higher than 9 would give an amplification of 2**0 = 1 for every..
+        -- .. value of volume, while any value lower than 5 would create too high of an amplification which would..
+        -- .. saturate almost immediatly every kind of input signal. With jstk_units = 6, the max amplification..
+        -- .. will be of 2**8 while with jstk_units = 5 we have at most 2**16 which still leaves 8 bits of signal out of the 24.
+        jstk_units : integer range 5 TO 9 := 6
     );
     Port (
         aclk     : in std_logic;
         aresetn     : in std_logic;
         
         volume : in std_logic_vector(9 DOWNTO 0);
-        
-        amp_power : out integer;
+        -- We need 5 bits for amp_power in case we use jstk_unit = 5, otherwise we would need
+        amp_power : out std_logic_vector(9-jstk_units DOWNTO 0);
         amp_sign : out std_logic
     );
 end amp_generator;
@@ -33,7 +32,7 @@ architecture Behavioral of amp_generator is
     signal volume_sym : std_logic_vector(9 DOWNTO 0);
     signal volume_div : std_logic_vector(9 DOWNTO 0);
     
-    signal amp_check : std_logic;
+    signal amp_check : std_logic_vector (1 DOWNTO 0);
     signal amp_sig : integer;
     
 begin
@@ -44,7 +43,7 @@ begin
         if rising_edge(aclk) then
             
             if aresetn = '0' then
-                amp_power <= 0;
+                amp_power <= (Others => '0');
                 
             else
                 
@@ -57,21 +56,21 @@ begin
                     shifter <= (Others => '0');
                 end if;
                 
-                volume_div <= shifter & volume_sym(9 DOWNTO 9-jstk_units+3);
+                volume_div <= shifter & volume_sym(9 DOWNTO jstk_units);
                 
-                amp_check <= volume_sym(9-jstk_units+2);
+                amp_check(1 DOWNTO 0) <= volume_sym(jstk_units DOWNTO jstk_units-1);
                 
-                if amp_check = '0' then
+                if amp_check = "00" or amp_check = "10" then
                     amp_sig <= to_integer(signed(volume_div));
-                elsif amp_check = '1' then
+                elsif amp_check = "01" or amp_check = "11" then
                     amp_sig <= to_integer(signed(volume_div)) + 1;
                 end if;
                 
                 if amp_sig < 0 then
-                    amp_power <= -amp_sig;
+                    amp_power <= std_logic_vector(to_signed(-amp_sig, amp_power'LENGTH));
                     amp_sign <= '1';
                 elsif amp_sig >= 0 then
-                    amp_power <= amp_sig;
+                    amp_power <= std_logic_vector(to_signed(amp_sig, amp_power'LENGTH));
                     amp_sign <= '0';
                 end if;
                 
