@@ -3,7 +3,7 @@ library IEEE;
 	use IEEE.NUMERIC_STD.ALL;
 
 
-entity AXISTREAM_TEMPLATE is
+entity balance_controller is
 	Generic(
 		jstk_units : integer range 5 TO 10 := 6;
 		MUSIC_DEPTH : integer range 0 to 30 :=24
@@ -26,9 +26,9 @@ entity AXISTREAM_TEMPLATE is
   
   
   );
-end AXISTREAM_TEMPLATE;
+end balance_controller;
 
-architecture Behavioral of AXISTREAM_TEMPLATE is
+architecture Behavioral of balance_controller is
 	--components declarations, and signal for the components--
 	component amp_generator is
     Generic(
@@ -70,7 +70,7 @@ architecture Behavioral of AXISTREAM_TEMPLATE is
 	signal s_left_data : std_logic_vector(24-1 DOWNTO 0);
     signal s_right_data : std_logic_vector(24-1 DOWNTO 0);
     
-    signal amp_power : integer;
+    signal amp_power : std_logic_vector(AMPL_DEPTH-1 downto 0);
     signal amp_sign : std_logic;
     
     signal m_left_data : std_logic_vector(24-1 DOWNTO 0);
@@ -90,11 +90,11 @@ architecture Behavioral of AXISTREAM_TEMPLATE is
 	signal	m_axis_tvalid_AUX	:	std_logic;
     signal	m_axis_tlast_AUX	:	std_logic;
 	
-	signal	Audio_sx_in	:	signed(24-1 DOWNTO 0);
-	signal	Audio_dx_in	:	signed(24-1 DOWNTO 0);
+	signal	Audio_sx_in	:	std_logic_vector(24-1 DOWNTO 0);
+	signal	Audio_dx_in	:	std_logic_vector(24-1 DOWNTO 0);
 	
-	signal	Audio_sx_out	:	signed(24-1 DOWNTO 0);
-	signal	Audio_dx_out	:	signed(24-1 DOWNTO 0);
+	signal	Audio_sx_out	:	std_logic_vector(24-1 DOWNTO 0);
+	signal	Audio_dx_out	:	std_logic_vector(24-1 DOWNTO 0);
 	
 	signal Counter_Pipeline	:	signed(4 downto 0):= Pipeline_legth;
 	signal Combinatorial_Finished	:	std_logic;
@@ -171,10 +171,10 @@ begin
 					if s_axis_tvalid='1' and s_axis_tready_AUX='1' then
 						if s_axis_tlast='1' then
 							RxAxis<=Elaboration_dx;
-							Audio_sx_in<=signed(s_axis_tdata);
+							Audio_sx_in<=s_axis_tdata;
 						else 
 							RxAxis<=Elaboration_sx;
-							Audio_dx_in<=signed(s_axis_tdata);
+							Audio_dx_in<=s_axis_tdata;
 						end if;
 						s_axis_tready_AUX<='0';
 					end if;
