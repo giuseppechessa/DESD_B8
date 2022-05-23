@@ -2,14 +2,17 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
 entity data_sender is
+	Generic(
+		DATA_LENGTH	:	Integer:= 24
+	);
     Port (
         aclk     : in std_logic;
         aresetn     : in std_logic;
         
-        data_right    : in std_logic_vector(24-1 DOWNTO 0);
-        data_left    : in std_logic_vector(24-1 DOWNTO 0);
+        data_right    : in std_logic_vector(DATA_LENGTH-1 DOWNTO 0);
+        data_left    : in std_logic_vector(DATA_LENGTH-1 DOWNTO 0);
         
-        m_axis_tdata    : out std_logic_vector(24-1 DOWNTO 0);
+        m_axis_tdata    : out std_logic_vector(DATA_LENGTH-1 DOWNTO 0);
         m_axis_tvalid   : out std_logic;
         m_axis_tlast    : out std_logic;
         m_axis_tready   : in std_logic

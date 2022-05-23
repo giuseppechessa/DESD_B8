@@ -5,6 +5,7 @@ use IEEE.MATH_REAL.ALL;
 
 entity mono_moving_average is
     Generic(
+		DATA_LENGTH	:	Integer:= 24;
         n_samples : integer := 32
     );
     Port (
@@ -13,8 +14,8 @@ entity mono_moving_average is
         
         filter_enable : in std_logic;
         
-        din : in std_logic_vector(23 DOWNTO 0);
-        dout : out std_logic_vector(23 DOWNTO 0)
+        din : in std_logic_vector(DATA_LENGTH-1 DOWNTO 0);
+        dout : out std_logic_vector(DATA_LENGTH-1 DOWNTO 0)
     );
 end mono_moving_average;
 
@@ -24,10 +25,10 @@ architecture Behavioral of mono_moving_average is
     
     constant extra_bits : integer := integer(log2(real(n_samples)));
     
-    type filter_type is array(n_samples-1 DOWNTO 0) of signed(23 DOWNTO 0);
+    type filter_type is array(n_samples-1 DOWNTO 0) of signed(DATA_LENGTH-1 DOWNTO 0);
     signal filter_mem : filter_type := (Others => (Others => '0'));
     
-    signal sum : signed(23 + extra_bits + 1 DOWNTO 0) := (Others => '0');
+    signal sum : signed(DATA_LENGTH-1 + extra_bits + 1 DOWNTO 0) := (Others => '0');
 
     signal count : unsigned(11 downto 0) := (Others => '0') ;
 

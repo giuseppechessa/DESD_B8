@@ -2,24 +2,27 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
 entity mute is
-  Port (
-  
-		aclk : in std_logic ;
-        aresetn : in std_logic ;
-		
-        mute_enable     : in std_logic;
-        
-        s_axis_tdata    : in std_logic_vector(24-1 DOWNTO 0);
-        s_axis_tvalid   : in std_logic;
-        s_axis_tlast    : in std_logic;
-        s_axis_tready   : out std_logic;
-        
-        m_axis_tdata    : out std_logic_vector(24-1 DOWNTO 0);
-        m_axis_tvalid   : out std_logic;
-        m_axis_tlast    : out std_logic;
-        m_axis_tready   : in std_logic
-  );
-end mute;
+	Generic(
+		DATA_LENGTH	:	Integer:= 24
+    );
+	Port (
+	  
+			aclk : in std_logic ;
+			aresetn : in std_logic ;
+			
+			mute_enable     : in std_logic;
+			
+			s_axis_tdata    : in std_logic_vector(DATA_LENGTH-1 DOWNTO 0);
+			s_axis_tvalid   : in std_logic;
+			s_axis_tlast    : in std_logic;
+			s_axis_tready   : out std_logic;
+			
+			m_axis_tdata    : out std_logic_vector(DATA_LENGTH-1 DOWNTO 0);
+			m_axis_tvalid   : out std_logic;
+			m_axis_tlast    : out std_logic;
+			m_axis_tready   : in std_logic
+	  );
+	end mute;
 
 architecture Behavioral of mute is
     
