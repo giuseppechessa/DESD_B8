@@ -33,6 +33,10 @@ architecture Behavioral of mono_signal_amp is
     
     signal dout_sig : signed(DATA_LENGTH-1 DOWNTO 0) := (Others => '0');
     signal dout_sat : signed(DATA_LENGTH-1 DOWNTO 0) := (Others => '0');
+	signal dout_satControl : signed(DATA_LENGTH-1 DOWNTO 0) := (Others => '0');
+	
+	constant Zero : signed(DATA_LENGTH-1 DOWNTO 0) := (Others => '0');
+	constant MinusOne : signed(DATA_LENGTH-1 DOWNTO 0) := (Others => '1');
     
 begin
 
@@ -96,8 +100,9 @@ begin
 						
 						dout_sig <= shift_left(signed(din), amp_power_int);
 						dout_sat <= (dout_sat'HIGH => din(din'HIGH), Others => not din(din'HIGH));
+						dout_satControl<=shift_right(signed(din), (din'HIGH-amp_power_int));
 						
-						if (din(din'HIGH) = '0' and dout_sat >= dout_sig and dout_sig > signed(din)) or (din(din'HIGH) = '1' and dout_sat <= dout_sig and dout_sig < signed(din)) then
+						if (din(din'HIGH) = '0' and dout_satControl=Zero) or (din(din'HIGH) = '1' and dout_satControl=MinusOne) then
 							dout <= std_logic_vector(dout_sig);
 						else
 							dout <= std_logic_vector(dout_sat);
