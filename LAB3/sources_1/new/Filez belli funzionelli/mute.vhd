@@ -26,31 +26,38 @@ entity mute is
 
 architecture Behavioral of mute is
     
+    -- This signal changes value whenever we press the trigger button on the joystick.
     signal mute_check : std_logic := '0';
     
 begin
 
     process(aclk,aresetn)
     begin
+    
         if aresetn = '0' then 
             mute_check <= '0' ;
             
-        elsif rising_edge(aclk) then 
+        elsif rising_edge(aclk) then
+
+            -- We noticed that this module worked well without the AXI4-Stream Interfaces, just by sending the control signals to..
+            -- .. the previous module or the following one.
             m_axis_tvalid <= s_axis_tvalid;
             m_axis_tlast <= s_axis_tlast;
             s_axis_tready <= m_axis_tready;
-                    
+
+            -- We can't use mute_enable right away, as we'd have a level-triggered mute instead of an edge-triggered one.        
             if mute_enable = '1' then
                 mute_check <= not mute_check;
             end if;
-                    
+
+            -- If the mute_check is '0' we can just send the data as it arrived, otherwise we'll send zeros continuously.
             if mute_check = '0' then
                 m_axis_tdata <= s_axis_tdata;
             elsif mute_check = '1' then
                 m_axis_tdata <= (Others => '0');
             end if;
-        end if ;    
-    
+
+        end if ;
         
     end process;
     
