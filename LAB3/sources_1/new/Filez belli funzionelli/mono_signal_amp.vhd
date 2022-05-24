@@ -36,7 +36,7 @@ architecture Behavioral of mono_signal_amp is
     
 begin
 
-	BALANCE_MODE : if  BALANCE=1 then 
+	BALANCE_MODE : if  BALANCE=1 generate 
 		amp_power_int <= to_integer(unsigned(amp_power));
 		
 		process(aclk, aresetn)
@@ -60,12 +60,13 @@ begin
 					end if;
 					
 					dout <= std_logic_vector(dout_sig);
+				end if;
 			end if;
 			
 		end process;
-	end generate;
+	end generate BALANCE_MODE;
 	
-	BALANCE_MODE : if  BALANCE=0 then 
+	VOLUME_MODE : if  BALANCE=0 generate 
 		amp_power_int <= to_integer(unsigned(amp_power));
 		
 		-- We can determine whether we need to increase or decrease the value based on amp_sign, amp_power..
