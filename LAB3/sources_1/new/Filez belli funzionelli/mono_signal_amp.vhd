@@ -5,7 +5,9 @@ use IEEE.NUMERIC_STD.ALL;
 entity mono_signal_amp is
     Generic(
 		DATA_LENGTH	:	Integer:= 24;
+		--This generic permits us to use the same module for the amplification and the dx_sx balancing
 		BALANCE		:	Integer range 0 to 1:=0;
+		--This generic defines if this module is for the Sx channel or the Dx Channel
 		DXSX		:	std_logic:='0';
         -- We only need this generic to determine the width amp_power can reach, e.g. with units = 5 we can achieve..
         -- a max amplification of 2**16, so we'll need 1+log2(16)= 5 bits.
@@ -39,7 +41,7 @@ architecture Behavioral of mono_signal_amp is
 	constant MinusOne : signed(DATA_LENGTH-1 DOWNTO 0) := (Others => '1');
     
 begin
-
+	
 	BALANCE_MODE : if  BALANCE=1 generate 
 		amp_power_int <= to_integer(unsigned(amp_power));
 		
@@ -60,6 +62,7 @@ begin
 						dout_sig <= signed(din);
 					else
 						-- This includes the cases where amp_power = 0
+						--the cast signed is neccessary to obtain a algebraic shift
 						dout_sig <= shift_right(signed(din), amp_power_int);
 					end if;
 					
@@ -73,9 +76,9 @@ begin
 	VOLUME_MODE : if  BALANCE=0 generate 
 		amp_power_int <= to_integer(unsigned(amp_power));
 		
-		-- We can determine whether we need to increase or decrease the value based on amp_sign, amp_power..
-		-- .. channel_check and balance_check, you can find the truth table we used to compute the correct expressions..
-		-- .. inside the main .zip
+		-- We can determine whether we need to increase or decrease the value based on amp_sign, amp_power
+		-- you can find the truth table we used to compute the correct expressions
+		-- inside the main .zip
 		increase_check <= (amp_sign = '0' and amp_power_int > 0);
 		decrease_check <= (amp_sign = '1' or amp_power_int = 0 );
 		
@@ -91,7 +94,7 @@ begin
 				else
 				
 					if decrease_check = true then
-						
+						--the cast signed is neccessary to obtain a algebraic shift
 						dout_sig <= shift_right(signed(din), amp_power_int);
 						
 						dout <= std_logic_vector(dout_sig);
@@ -99,9 +102,13 @@ begin
 					elsif increase_check = true then
 						
 						dout_sig <= shift_left(signed(din), amp_power_int);
+						--This is the maximum value obtainable, positive or negative
 						dout_sat <= (dout_sat'HIGH => din(din'HIGH), Others => not din(din'HIGH));
+						--The signal has to be saturated if the first n+1 Bits are different from the HIGH bit, because in this case
+						--after the shift an overflow would occour and the resulting value would not be the original value*2 but a random value
 						dout_satControl<=shift_right(signed(din), (din'HIGH-amp_power_int));
-						
+						--if din>0 after the right shift if no ones are in the n+1 bits then the signal can be multiplied, if d<0  if no 0 are in the n+1 bits
+						-- then the signal can be multiplied
 						if (din(din'HIGH) = '0' and dout_satControl=Zero) or (din(din'HIGH) = '1' and dout_satControl=MinusOne) then
 							dout <= std_logic_vector(dout_sig);
 						else
@@ -115,6 +122,6 @@ begin
 			end if;
 			
 		end process;
-	end generate;
+	end generate VOLUME_MODE;
 
 end Behavioral;

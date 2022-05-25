@@ -4,6 +4,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 entity volume_controller is
     Generic(
 		DATA_LENGTH	:	Integer:= 24;
+		--This generic permits us to use this module for the general amplification and also for the Sx and Dx balancing
 		BALANCE		:	Integer range 0 to 1:=0;
         -- We only need this generic to determine the width amp_power can reach, e.g. with units = 5 we can achieve..
         -- a max amplification of 2**16, so we'll need 1+log2(16)= 5 bits.
@@ -28,7 +29,7 @@ entity volume_controller is
 end volume_controller;
 
 architecture Behavioral of volume_controller is
-
+	--This component will manage the AXI4Stream receive for us
     component data_receiver is
 		Generic(
 			DATA_LENGTH	:	Integer:= 24
@@ -46,7 +47,7 @@ architecture Behavioral of volume_controller is
             data_right : out std_logic_vector(DATA_LENGTH-1 DOWNTO 0)
         );
     end component;
-    
+    --This component will read the joystick value and give us the sign and power of the amplification
     component amp_generator is
     Generic(
         jstk_units : integer range 5 TO 9 := 6
@@ -61,14 +62,12 @@ architecture Behavioral of volume_controller is
         amp_sign : out std_logic
     );
     end component;
-
+	--This component will perform the amplification
 	component mono_signal_amp is
 		Generic(
 			DATA_LENGTH	:	Integer:= 24;
 			BALANCE		:	Integer range 0 to 1:=0;
 			DXSX		:	std_logic:='0';
-			-- We only need this generic to determine the width amp_power can reach, e.g. with units = 5 we can achieve..
-			-- a max amplification of 2**16, so we'll need 1+log2(16)= 5 bits.
 			jstk_units : integer range 5 to 9 := 6
 		);
 		Port (
@@ -83,7 +82,7 @@ architecture Behavioral of volume_controller is
 			dout : out std_logic_vector(DATA_LENGTH-1 DOWNTO 0)
 		);
 	end component;
-    
+    --This component will manage the AXI4Stream transmit for us
     component data_sender is
 		Generic(
 			DATA_LENGTH	:	Integer:= 24
@@ -102,8 +101,6 @@ architecture Behavioral of volume_controller is
         );
     end component;
     
-    constant balance_check : std_logic := '0';
-    constant left_channel : std_logic := '0';
     
     signal s_left_data : std_logic_vector(DATA_LENGTH-1 DOWNTO 0);
     signal s_right_data : std_logic_vector(DATA_LENGTH-1 DOWNTO 0);
@@ -142,7 +139,7 @@ begin
         amp_power => amp_power,
         amp_sign => amp_sign
     );
-    
+    --We instantiate the same module twice, one time for the left channel
     LEFT_AMP_INST : mono_signal_amp
     Generic Map(
 		DATA_LENGTH=>DATA_LENGTH,
@@ -158,7 +155,7 @@ begin
         amp_sign => amp_sign,
         dout => m_left_data
     );
-    
+    --The second time for the right channel
     RIGHT_AMP_INST : mono_signal_amp
     Generic Map(
 		DATA_LENGTH=>DATA_LENGTH,
